@@ -1,0 +1,6 @@
+@LogisticsCrm.WebApi_HostAddress = http://localhost:5120
+
+GET {{LogisticsCrm.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
