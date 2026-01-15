@@ -31,6 +31,15 @@ namespace LogisticsCrm.Domain.Entities
 
         public void Deactivate() => IsActive = false;
         public void Activate() => IsActive = true;
+
+        public void UpdateDetails(string name, string? contactPerson, string? phone, string? email)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            ContactPerson = contactPerson;
+            Phone = phone;
+            Email = email;
+        }
+
     }
 }
 

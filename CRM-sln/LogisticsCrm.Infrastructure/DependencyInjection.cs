@@ -20,7 +20,7 @@ namespace LogisticsCrm.Infrastructure
                 options.UseNpgsql(connectionString));
 
             services.AddScoped<IClientRepository, ClientRepository>();
-
+            
             return services;
         }
 

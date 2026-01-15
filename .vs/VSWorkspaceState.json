@@ -1,6 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\.github",
+    "\\CRM-sln",
+    "\\CRM-sln\\LogisticsCrm.Infrastructure",
+    "\\CRM-sln\\LogisticsCrm.WebApi"
   ],
+  "SelectedNode": "\\CRM-sln\\LogisticsCrm.Infrastructure\\DependencyInjection.cs",
   "PreviewInSolutionExplorer": false
 }

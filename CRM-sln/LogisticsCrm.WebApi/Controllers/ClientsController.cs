@@ -28,7 +28,6 @@ namespace LogisticsCrm.Infrastructure.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
-        // Для оновлення/видалення: без AsNoTracking, щоб EF відслідковував зміни
         public async Task<Client?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Clients
