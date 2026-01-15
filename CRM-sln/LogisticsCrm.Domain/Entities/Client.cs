@@ -40,6 +40,7 @@ namespace LogisticsCrm.Domain.Entities
             Email = email;
         }
 
+
     }
 }
 

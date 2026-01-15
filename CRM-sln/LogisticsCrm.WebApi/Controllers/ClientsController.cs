@@ -1,53 +1,88 @@
 ﻿using LogisticsCrm.Application.Abstractions;
 using LogisticsCrm.Domain.Entities;
-using LogisticsCrm.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using LogisticsCrm.WebApi.Dtos.Clients;
+using Microsoft.AspNetCore.Mvc;
 
-namespace LogisticsCrm.Infrastructure.Repositories
+namespace LogisticsCrm.WebApi.Controllers
 {
-    public class ClientRepository : IClientRepository
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ClientsController : ControllerBase
     {
-        private readonly LogisticsCrmDbContext _dbContext;
+        private readonly IClientRepository _clientRepository;
 
-        public ClientRepository(LogisticsCrmDbContext dbContext)
+        public ClientsController(IClientRepository clientRepository)
         {
-            _dbContext = dbContext;
+            _clientRepository = clientRepository;
         }
 
-        public async Task<List<Client>> GetAllAsync(CancellationToken cancellationToken = default)
+        // GET: api/clients
+        [HttpGet]
+        public async Task<ActionResult<List<ClientResponseDto>>> GetAll(CancellationToken cancellationToken)
         {
-            return await _dbContext.Clients
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            var clients = await _clientRepository.GetAllAsync(cancellationToken);
+            return Ok(clients.Select(c => c.ToDto()).ToList());
         }
 
-        public async Task<Client?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        // GET: api/clients/{id}
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<ClientResponseDto>> GetById(Guid id, CancellationToken cancellationToken)
         {
-            return await _dbContext.Clients
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            var client = await _clientRepository.GetByIdAsync(id, cancellationToken);
+            if (client == null)
+                return NotFound();
+
+            return Ok(client.ToDto());
         }
 
-        public async Task<Client?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
+        // POST: api/clients
+        [HttpPost]
+        public async Task<ActionResult<ClientResponseDto>> Create(
+            [FromBody] CreateClientRequest request,
+            CancellationToken cancellationToken)
         {
-            return await _dbContext.Clients
-                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            var client = new Client(
+                request.Name,
+                request.ContactPerson,
+                request.Phone,
+                request.Email);
+
+            await _clientRepository.AddAsync(client, cancellationToken);
+            await _clientRepository.SaveChangesAsync(cancellationToken);
+
+            var dto = client.ToDto();
+            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
         }
 
-        public async Task AddAsync(Client client, CancellationToken cancellationToken = default)
+        // PUT: api/clients/{id}
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<ClientResponseDto>> Update(
+            Guid id,
+            [FromBody] UpdateClientRequest request,
+            CancellationToken cancellationToken)
         {
-            await _dbContext.Clients.AddAsync(client, cancellationToken);
+            var client = await _clientRepository.GetByIdForUpdateAsync(id, cancellationToken);
+            if (client == null)
+                return NotFound();
+
+            client.UpdateDetails(request.Name, request.ContactPerson, request.Phone, request.Email);
+            await _clientRepository.SaveChangesAsync(cancellationToken);
+
+            return Ok(client.ToDto());
         }
 
-        public Task DeleteAsync(Client client, CancellationToken cancellationToken = default)
+        // DELETE: api/clients/{id}
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            _dbContext.Clients.Remove(client);
-            return Task.CompletedTask;
-        }
+            var client = await _clientRepository.GetByIdForUpdateAsync(id, cancellationToken);
+            if (client == null)
+                return NotFound();
 
-        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _clientRepository.DeleteAsync(client, cancellationToken);
+            await _clientRepository.SaveChangesAsync(cancellationToken);
+
+            return NoContent();
         }
     }
 }

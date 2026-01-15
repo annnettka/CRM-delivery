@@ -3,9 +3,13 @@
     "",
     "\\.github",
     "\\CRM-sln",
-    "\\CRM-sln\\LogisticsCrm.Infrastructure",
-    "\\CRM-sln\\LogisticsCrm.WebApi"
+    "\\CRM-sln\\LogisticsCrm.Domain",
+    "\\CRM-sln\\LogisticsCrm.Domain\\Entities",
+    "\\CRM-sln\\LogisticsCrm.WebApi",
+    "\\CRM-sln\\LogisticsCrm.WebApi\\Controllers",
+    "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos",
+    "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos\\Clients"
   ],
-  "SelectedNode": "\\CRM-sln\\LogisticsCrm.Infrastructure\\DependencyInjection.cs",
+  "SelectedNode": "\\CRM-sln\\CRM-sln.sln",
   "PreviewInSolutionExplorer": false
 }
