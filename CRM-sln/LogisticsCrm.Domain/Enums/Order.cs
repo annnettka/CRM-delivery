@@ -5,6 +5,8 @@ namespace LogisticsCrm.Domain.Entities
     public class Order
     {
         public Guid Id { get; private set; }
+        public Guid? CourierId { get; private set; }
+
 
         public Guid ClientId { get; private set; }
 
@@ -21,7 +23,19 @@ namespace LogisticsCrm.Domain.Entities
 
         public DateTime CreatedAtUtc { get; private set; }
 
-        private Order() { } // EF
+        private Order() { } 
+        public void AssignCourier(Guid courierId)
+        {
+            if (courierId == Guid.Empty)
+                throw new ArgumentException("CourierId cannot be empty.", nameof(courierId));
+
+            if (Status is OrderStatus.Delivered or OrderStatus.Canceled)
+                throw new InvalidOperationException("Cannot assign courier for delivered/canceled order.");
+
+            CourierId = courierId;
+        }
+
+
 
         public Order(
             Guid clientId,

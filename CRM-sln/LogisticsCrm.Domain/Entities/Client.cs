@@ -16,7 +16,7 @@ namespace LogisticsCrm.Domain.Entities
         public string? Email { get; private set; }
         public bool IsActive { get; private set; }
 
-        private Client() { } // для EF Core
+        private Client() { } 
 
         public Client(string name, string? contactPerson, string? phone, string? email)
         {

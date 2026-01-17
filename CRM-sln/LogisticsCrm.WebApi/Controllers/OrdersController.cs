@@ -15,17 +15,23 @@ namespace LogisticsCrm.WebApi.Controllers
         private readonly IClientRepository _clientRepository;
         private readonly ITrackingNumberGenerator _trackingNumberGenerator;
         private readonly IOrderStatusHistoryRepository _historyRepository;
+        private readonly ICourierRepository _courierRepository;
+
+
 
         public OrdersController(
             IOrderRepository orderRepository,
             IClientRepository clientRepository,
             ITrackingNumberGenerator trackingNumberGenerator,
-            IOrderStatusHistoryRepository historyRepository)
+            IOrderStatusHistoryRepository historyRepository, 
+            ICourierRepository courierRepository)
         {
             _orderRepository = orderRepository;
             _clientRepository = clientRepository;
             _trackingNumberGenerator = trackingNumberGenerator;
             _historyRepository = historyRepository;
+            _courierRepository = courierRepository;
+
         }
 
         [HttpGet]
@@ -97,7 +103,6 @@ namespace LogisticsCrm.WebApi.Controllers
                     return BadRequest("Invalid status transition.");
             }
 
-            // пишемо в історію
             var record = new OrderStatusHistory(
                 order.Id,
                 fromStatus,
@@ -105,8 +110,6 @@ namespace LogisticsCrm.WebApi.Controllers
                 comment: null);
 
             await _historyRepository.AddAsync(record, cancellationToken);
-
-            // один SaveChanges достатній, бо репозиторії використовують той самий DbContext
             await _orderRepository.SaveChangesAsync(cancellationToken);
 
             return Ok(order.ToDto());
@@ -128,6 +131,26 @@ namespace LogisticsCrm.WebApi.Controllers
 
             return Ok(result);
         }
+        [HttpPatch("{id:guid}/assign-courier")]
+        public async Task<ActionResult<OrderResponseDto>> AssignCourier(
+         Guid id,
+         [FromBody] AssignCourierRequest request,
+         CancellationToken cancellationToken)
+        {
+            var order = await _orderRepository.GetByIdForUpdateAsync(id, cancellationToken);
+            if (order == null)
+                return NotFound();
+
+            var courier = await _courierRepository.GetByIdAsync(request.CourierId, cancellationToken);
+            if (courier == null)
+                return BadRequest($"CourierId '{request.CourierId}' not found.");
+
+            order.AssignCourier(request.CourierId);
+
+            await _orderRepository.SaveChangesAsync(cancellationToken);
+            return Ok(order.ToDto());
+        }
+
 
     }
 }

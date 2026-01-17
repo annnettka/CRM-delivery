@@ -16,7 +16,6 @@ namespace LogisticsCrm.WebApi.Controllers
             _clientRepository = clientRepository;
         }
 
-        // GET: api/clients
         [HttpGet]
         public async Task<ActionResult<List<ClientResponseDto>>> GetAll(CancellationToken cancellationToken)
         {
@@ -24,7 +23,6 @@ namespace LogisticsCrm.WebApi.Controllers
             return Ok(clients.Select(c => c.ToDto()).ToList());
         }
 
-        // GET: api/clients/{id}
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<ClientResponseDto>> GetById(Guid id, CancellationToken cancellationToken)
         {
@@ -35,7 +33,6 @@ namespace LogisticsCrm.WebApi.Controllers
             return Ok(client.ToDto());
         }
 
-        // POST: api/clients
         [HttpPost]
         public async Task<ActionResult<ClientResponseDto>> Create(
             [FromBody] CreateClientRequest request,
@@ -54,7 +51,6 @@ namespace LogisticsCrm.WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
         }
 
-        // PUT: api/clients/{id}
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<ClientResponseDto>> Update(
             Guid id,
@@ -71,7 +67,6 @@ namespace LogisticsCrm.WebApi.Controllers
             return Ok(client.ToDto());
         }
 
-        // DELETE: api/clients/{id}
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {

@@ -2,8 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\CRM-sln",
-    "\\CRM-sln\\LogisticsCrm.Application",
-    "\\CRM-sln\\LogisticsCrm.Application\\Abstractions",
+    "\\CRM-sln\\LogisticsCrm.Domain",
+    "\\CRM-sln\\LogisticsCrm.Domain\\Entities",
     "\\CRM-sln\\LogisticsCrm.Infrastructure",
     "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories",
     "\\CRM-sln\\LogisticsCrm.WebApi",
@@ -12,6 +12,6 @@
     "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos\\Orders",
     "\\LogisticsCrm.Infrastructure"
   ],
-  "SelectedNode": "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories\\OrderRepository.cs",
+  "SelectedNode": "\\CRM-sln\\CRM-sln.sln",
   "PreviewInSolutionExplorer": false
 }

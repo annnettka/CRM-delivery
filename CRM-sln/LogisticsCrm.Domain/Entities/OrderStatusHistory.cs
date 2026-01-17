@@ -11,7 +11,7 @@ namespace LogisticsCrm.Domain.Entities
         public DateTime ChangedAtUtc { get; private set; }
         public string? Comment { get; private set; }
 
-        private OrderStatusHistory() { } // EF
+        private OrderStatusHistory() { } 
 
         public OrderStatusHistory(Guid orderId, OrderStatus fromStatus, OrderStatus toStatus, string? comment)
         {

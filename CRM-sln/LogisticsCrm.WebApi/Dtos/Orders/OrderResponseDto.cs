@@ -12,5 +12,8 @@
         public decimal Price { get; set; }
         public int Status { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public Guid? CourierId { get; set; }
+
+
     }
 }

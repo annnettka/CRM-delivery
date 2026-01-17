@@ -13,7 +13,7 @@ namespace LogisticsCrm.Infrastructure.Persistence
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderStatusHistory> OrderStatusHistory => Set<OrderStatusHistory>();
-
+        public DbSet<Courier> Couriers => Set<Courier>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,7 +55,12 @@ namespace LogisticsCrm.Infrastructure.Persistence
                 entity.HasKey(o => o.Id);
 
                 entity.Property(o => o.Id).HasColumnName("id");
-                entity.Property(o => o.ClientId).HasColumnName("client_id");
+
+                entity.Property(o => o.ClientId)
+                    .HasColumnName("client_id");
+
+                entity.Property(o => o.CourierId)
+                    .HasColumnName("courier_id");
 
                 entity.Property(o => o.TrackingNumber)
                     .HasColumnName("tracking_number")
@@ -93,6 +98,7 @@ namespace LogisticsCrm.Infrastructure.Persistence
                 entity.Property(o => o.CreatedAtUtc)
                     .HasColumnName("created_at_utc");
             });
+
             modelBuilder.Entity<OrderStatusHistory>(entity =>
             {
                 entity.ToTable("order_status_history");
@@ -100,7 +106,9 @@ namespace LogisticsCrm.Infrastructure.Persistence
                 entity.HasKey(x => x.Id);
 
                 entity.Property(x => x.Id).HasColumnName("id");
-                entity.Property(x => x.OrderId).HasColumnName("order_id");
+
+                entity.Property(x => x.OrderId)
+                    .HasColumnName("order_id");
 
                 entity.Property(x => x.FromStatus)
                     .HasColumnName("from_status")
@@ -120,6 +128,27 @@ namespace LogisticsCrm.Infrastructure.Persistence
                 entity.HasIndex(x => x.OrderId);
             });
 
+            modelBuilder.Entity<Courier>(entity =>
+            {
+                entity.ToTable("couriers");
+
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Id).HasColumnName("id");
+
+                entity.Property(x => x.FullName)
+                    .HasColumnName("full_name")
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(x => x.Phone)
+                    .HasColumnName("phone")
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.IsActive)
+                    .HasColumnName("is_active");
+            });
         }
     }
 }

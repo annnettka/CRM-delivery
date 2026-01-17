@@ -10,6 +10,7 @@ namespace LogisticsCrm.WebApi.Dtos.Orders
             {
                 Id = order.Id,
                 ClientId = order.ClientId,
+                CourierId = order.CourierId, 
                 TrackingNumber = order.TrackingNumber,
                 PickupAddress = order.PickupAddress,
                 DeliveryAddress = order.DeliveryAddress,
