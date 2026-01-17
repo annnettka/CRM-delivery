@@ -10,5 +10,15 @@ namespace LogisticsCrm.Application.Abstractions
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<Order?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default);
 
+        Task<(List<Order> Items, int TotalCount)> SearchAsync(
+        int? status,
+        Guid? courierId,
+        Guid? clientId,
+        string? search,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+
     }
 }

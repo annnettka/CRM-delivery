@@ -2,6 +2,7 @@
 using LogisticsCrm.Application.Services;
 using LogisticsCrm.Domain.Entities;
 using LogisticsCrm.Domain.Enums;
+using LogisticsCrm.WebApi.Dtos.Common;
 using LogisticsCrm.WebApi.Dtos.Orders;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +18,11 @@ namespace LogisticsCrm.WebApi.Controllers
         private readonly IOrderStatusHistoryRepository _historyRepository;
         private readonly ICourierRepository _courierRepository;
 
-
-
         public OrdersController(
             IOrderRepository orderRepository,
             IClientRepository clientRepository,
             ITrackingNumberGenerator trackingNumberGenerator,
-            IOrderStatusHistoryRepository historyRepository, 
+            IOrderStatusHistoryRepository historyRepository,
             ICourierRepository courierRepository)
         {
             _orderRepository = orderRepository;
@@ -31,14 +30,33 @@ namespace LogisticsCrm.WebApi.Controllers
             _trackingNumberGenerator = trackingNumberGenerator;
             _historyRepository = historyRepository;
             _courierRepository = courierRepository;
-
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<OrderResponseDto>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<PagedResult<OrderResponseDto>>> GetAll(
+            [FromQuery] GetOrdersQuery query,
+            CancellationToken cancellationToken)
         {
-            var orders = await _orderRepository.GetAllAsync(cancellationToken);
-            return Ok(orders.Select(o => o.ToDto()).ToList());
+            var (items, totalCount) = await _orderRepository.SearchAsync(
+                query.Status,
+                query.CourierId,
+                query.ClientId,
+                query.Search,
+                query.Page,
+                query.PageSize,
+                cancellationToken);
+
+            var dtoItems = items.Select(o => o.ToDto()).ToList();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)query.PageSize);
+
+            return Ok(new PagedResult<OrderResponseDto>
+            {
+                Items = dtoItems,
+                Page = query.Page,
+                PageSize = query.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            });
         }
 
         [HttpGet("{id:guid}")]
@@ -114,6 +132,7 @@ namespace LogisticsCrm.WebApi.Controllers
 
             return Ok(order.ToDto());
         }
+
         [HttpGet("{id:guid}/history")]
         public async Task<ActionResult<List<object>>> GetHistory(Guid id, CancellationToken cancellationToken)
         {
@@ -131,11 +150,12 @@ namespace LogisticsCrm.WebApi.Controllers
 
             return Ok(result);
         }
+
         [HttpPatch("{id:guid}/assign-courier")]
         public async Task<ActionResult<OrderResponseDto>> AssignCourier(
-         Guid id,
-         [FromBody] AssignCourierRequest request,
-         CancellationToken cancellationToken)
+            Guid id,
+            [FromBody] AssignCourierRequest request,
+            CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdForUpdateAsync(id, cancellationToken);
             if (order == null)
@@ -150,7 +170,5 @@ namespace LogisticsCrm.WebApi.Controllers
             await _orderRepository.SaveChangesAsync(cancellationToken);
             return Ok(order.ToDto());
         }
-
-
     }
 }
