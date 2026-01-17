@@ -4,6 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using LogisticsCrm.Application.Abstractions;
 using LogisticsCrm.Infrastructure.Repositories;
+using LogisticsCrm.Application.Abstractions;
+using LogisticsCrm.Infrastructure.Repositories;
+
 
 
 namespace LogisticsCrm.Infrastructure
@@ -20,7 +23,9 @@ namespace LogisticsCrm.Infrastructure
                 options.UseNpgsql(connectionString));
 
             services.AddScoped<IClientRepository, ClientRepository>();
-            
+            services.AddScoped<IOrderRepository, OrderRepository>();
+
+
             return services;
         }
 

@@ -1,4 +1,6 @@
 using LogisticsCrm.Infrastructure;
+using LogisticsCrm.Application.Services;
+
 
 
 
@@ -13,6 +15,8 @@ builder.Services.AddSwaggerGen();
 
 // інфраструктура (Postgres, DbContext)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddSingleton<ITrackingNumberGenerator, TrackingNumberGenerator>();
 
 
 var app = builder.Build();

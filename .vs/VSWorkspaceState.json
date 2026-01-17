@@ -1,15 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\.github",
     "\\CRM-sln",
-    "\\CRM-sln\\LogisticsCrm.Domain",
-    "\\CRM-sln\\LogisticsCrm.Domain\\Entities",
+    "\\CRM-sln\\LogisticsCrm.Application",
+    "\\CRM-sln\\LogisticsCrm.Application\\Abstractions",
+    "\\CRM-sln\\LogisticsCrm.Infrastructure",
+    "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories",
     "\\CRM-sln\\LogisticsCrm.WebApi",
-    "\\CRM-sln\\LogisticsCrm.WebApi\\Controllers",
     "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos",
-    "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos\\Clients"
+    "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos\\Orders",
+    "\\LogisticsCrm.Infrastructure"
   ],
-  "SelectedNode": "\\CRM-sln\\CRM-sln.sln",
+  "SelectedNode": "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories\\ClientRepository.cs",
   "PreviewInSolutionExplorer": false
 }
