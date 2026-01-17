@@ -46,16 +46,13 @@ namespace LogisticsCrm.WebApi.Controllers
                 query.PageSize,
                 cancellationToken);
 
-            var dtoItems = items.Select(o => o.ToDto()).ToList();
-            var totalPages = (int)Math.Ceiling(totalCount / (double)query.PageSize);
-
             return Ok(new PagedResult<OrderResponseDto>
             {
-                Items = dtoItems,
+                Items = items.Select(o => o.ToDto()).ToList(),
                 Page = query.Page,
                 PageSize = query.PageSize,
                 TotalCount = totalCount,
-                TotalPages = totalPages
+                TotalPages = (int)Math.Ceiling(totalCount / (double)query.PageSize)
             });
         }
 
@@ -92,8 +89,7 @@ namespace LogisticsCrm.WebApi.Controllers
             await _orderRepository.AddAsync(order, cancellationToken);
             await _orderRepository.SaveChangesAsync(cancellationToken);
 
-            var dto = order.ToDto();
-            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+            return CreatedAtAction(nameof(GetById), new { id = order.Id }, order.ToDto());
         }
 
         [HttpPatch("{id:guid}/status")]
@@ -109,16 +105,13 @@ namespace LogisticsCrm.WebApi.Controllers
             var fromStatus = order.Status;
             var newStatus = (OrderStatus)request.Status;
 
-            switch (newStatus)
+            try
             {
-                case OrderStatus.Assigned: order.Assign(); break;
-                case OrderStatus.PickedUp: order.MarkPickedUp(); break;
-                case OrderStatus.InTransit: order.MarkInTransit(); break;
-                case OrderStatus.Delivered: order.MarkDelivered(); break;
-                case OrderStatus.Canceled: order.Cancel(); break;
-                case OrderStatus.Created:
-                default:
-                    return BadRequest("Invalid status transition.");
+                order.ChangeStatus(newStatus);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
 
             var record = new OrderStatusHistory(
@@ -138,7 +131,7 @@ namespace LogisticsCrm.WebApi.Controllers
         {
             var history = await _historyRepository.GetByOrderIdAsync(id, cancellationToken);
 
-            var result = history.Select(x => new
+            return Ok(history.Select(x => new
             {
                 x.Id,
                 x.OrderId,
@@ -146,9 +139,7 @@ namespace LogisticsCrm.WebApi.Controllers
                 ToStatus = (int)x.ToStatus,
                 x.ChangedAtUtc,
                 x.Comment
-            }).ToList();
-
-            return Ok(result);
+            }));
         }
 
         [HttpPatch("{id:guid}/assign-courier")]
@@ -165,7 +156,14 @@ namespace LogisticsCrm.WebApi.Controllers
             if (courier == null)
                 return BadRequest($"CourierId '{request.CourierId}' not found.");
 
-            order.AssignCourier(request.CourierId);
+            try
+            {
+                order.AssignCourier(request.CourierId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             await _orderRepository.SaveChangesAsync(cancellationToken);
             return Ok(order.ToDto());
