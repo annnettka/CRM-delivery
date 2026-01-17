@@ -24,6 +24,8 @@ namespace LogisticsCrm.Infrastructure
 
             services.AddScoped<IClientRepository, ClientRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderStatusHistoryRepository, OrderStatusHistoryRepository>();
+
 
 
             return services;

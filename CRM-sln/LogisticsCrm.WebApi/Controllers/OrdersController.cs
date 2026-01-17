@@ -1,10 +1,9 @@
 ﻿using LogisticsCrm.Application.Abstractions;
 using LogisticsCrm.Application.Services;
 using LogisticsCrm.Domain.Entities;
+using LogisticsCrm.Domain.Enums;
 using LogisticsCrm.WebApi.Dtos.Orders;
 using Microsoft.AspNetCore.Mvc;
-using LogisticsCrm.Domain.Enums;
-
 
 namespace LogisticsCrm.WebApi.Controllers
 {
@@ -15,15 +14,18 @@ namespace LogisticsCrm.WebApi.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly IClientRepository _clientRepository;
         private readonly ITrackingNumberGenerator _trackingNumberGenerator;
+        private readonly IOrderStatusHistoryRepository _historyRepository;
 
         public OrdersController(
             IOrderRepository orderRepository,
             IClientRepository clientRepository,
-            ITrackingNumberGenerator trackingNumberGenerator)
+            ITrackingNumberGenerator trackingNumberGenerator,
+            IOrderStatusHistoryRepository historyRepository)
         {
             _orderRepository = orderRepository;
             _clientRepository = clientRepository;
             _trackingNumberGenerator = trackingNumberGenerator;
+            _historyRepository = historyRepository;
         }
 
         [HttpGet]
@@ -48,7 +50,6 @@ namespace LogisticsCrm.WebApi.Controllers
             [FromBody] CreateOrderRequest request,
             CancellationToken cancellationToken)
         {
-            // перевіряємо, що Client існує
             var client = await _clientRepository.GetByIdAsync(request.ClientId, cancellationToken);
             if (client == null)
                 return BadRequest($"ClientId '{request.ClientId}' not found.");
@@ -70,18 +71,18 @@ namespace LogisticsCrm.WebApi.Controllers
             var dto = order.ToDto();
             return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
         }
+
         [HttpPatch("{id:guid}/status")]
         public async Task<ActionResult<OrderResponseDto>> UpdateStatus(
-         Guid id,
-        [FromBody] UpdateOrderStatusRequest request,
-         CancellationToken cancellationToken)
+            Guid id,
+            [FromBody] UpdateOrderStatusRequest request,
+            CancellationToken cancellationToken)
         {
-            // тут потрібно взяти order з трекінгом (без AsNoTracking)
-            // тому або додамо метод GetByIdForUpdateAsync, або тимчасово зробимо так:
             var order = await _orderRepository.GetByIdForUpdateAsync(id, cancellationToken);
             if (order == null)
                 return NotFound();
 
+            var fromStatus = order.Status;
             var newStatus = (OrderStatus)request.Status;
 
             switch (newStatus)
@@ -96,8 +97,36 @@ namespace LogisticsCrm.WebApi.Controllers
                     return BadRequest("Invalid status transition.");
             }
 
+            // пишемо в історію
+            var record = new OrderStatusHistory(
+                order.Id,
+                fromStatus,
+                order.Status,
+                comment: null);
+
+            await _historyRepository.AddAsync(record, cancellationToken);
+
+            // один SaveChanges достатній, бо репозиторії використовують той самий DbContext
             await _orderRepository.SaveChangesAsync(cancellationToken);
+
             return Ok(order.ToDto());
+        }
+        [HttpGet("{id:guid}/history")]
+        public async Task<ActionResult<List<object>>> GetHistory(Guid id, CancellationToken cancellationToken)
+        {
+            var history = await _historyRepository.GetByOrderIdAsync(id, cancellationToken);
+
+            var result = history.Select(x => new
+            {
+                x.Id,
+                x.OrderId,
+                FromStatus = (int)x.FromStatus,
+                ToStatus = (int)x.ToStatus,
+                x.ChangedAtUtc,
+                x.Comment
+            }).ToList();
+
+            return Ok(result);
         }
 
     }

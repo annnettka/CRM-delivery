@@ -7,10 +7,11 @@
     "\\CRM-sln\\LogisticsCrm.Infrastructure",
     "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories",
     "\\CRM-sln\\LogisticsCrm.WebApi",
+    "\\CRM-sln\\LogisticsCrm.WebApi\\Controllers",
     "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos",
     "\\CRM-sln\\LogisticsCrm.WebApi\\Dtos\\Orders",
     "\\LogisticsCrm.Infrastructure"
   ],
-  "SelectedNode": "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories\\ClientRepository.cs",
+  "SelectedNode": "\\CRM-sln\\LogisticsCrm.Infrastructure\\Repositories\\OrderRepository.cs",
   "PreviewInSolutionExplorer": false
 }
