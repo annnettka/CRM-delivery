@@ -28,6 +28,12 @@ namespace LogisticsCrm.Infrastructure.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
+        public async Task<Courier?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Couriers
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken); 
+        }
+
         public async Task AddAsync(Courier courier, CancellationToken cancellationToken = default)
         {
             await _dbContext.Couriers.AddAsync(courier, cancellationToken);

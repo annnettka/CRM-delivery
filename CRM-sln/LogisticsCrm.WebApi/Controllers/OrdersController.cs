@@ -156,6 +156,10 @@ namespace LogisticsCrm.WebApi.Controllers
             if (courier == null)
                 return BadRequest($"CourierId '{request.CourierId}' not found.");
 
+            if (!courier.IsActive)
+                return BadRequest($"CourierId '{request.CourierId}' is not active.");
+
+
             try
             {
                 order.AssignCourier(request.CourierId);

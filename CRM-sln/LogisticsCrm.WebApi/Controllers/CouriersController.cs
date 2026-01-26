@@ -38,6 +38,12 @@ namespace LogisticsCrm.WebApi.Controllers
             [FromBody] CreateCourierRequest request,
             CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.FullName))
+                return BadRequest("FullName is required.");
+
+            if (string.IsNullOrWhiteSpace(request.Phone))
+                return BadRequest("Phone is required.");
+
             var courier = new Courier(request.FullName, request.Phone);
 
             await _courierRepository.AddAsync(courier, cancellationToken);
@@ -45,6 +51,32 @@ namespace LogisticsCrm.WebApi.Controllers
 
             var dto = courier.ToDto();
             return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+        }
+
+        [HttpPatch("{id:guid}/deactivate")]
+        public async Task<ActionResult<CourierResponseDto>> Deactivate(Guid id, CancellationToken cancellationToken)
+        {
+            var courier = await _courierRepository.GetByIdForUpdateAsync(id, cancellationToken);
+            if (courier == null)
+                return NotFound();
+
+            courier.Deactivate();
+            await _courierRepository.SaveChangesAsync(cancellationToken);
+
+            return Ok(courier.ToDto());
+        }
+
+        [HttpPatch("{id:guid}/activate")]
+        public async Task<ActionResult<CourierResponseDto>> Activate(Guid id, CancellationToken cancellationToken)
+        {
+            var courier = await _courierRepository.GetByIdForUpdateAsync(id, cancellationToken);
+            if (courier == null)
+                return NotFound();
+
+            courier.Activate();
+            await _courierRepository.SaveChangesAsync(cancellationToken);
+
+            return Ok(courier.ToDto());
         }
     }
 }
